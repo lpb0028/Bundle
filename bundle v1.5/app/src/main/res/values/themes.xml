@@ -1,0 +1,9 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Overlaying" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/minecraft_dim_gray</item>
+        <item name="colorSecondary">@color/minecraft_lighter_gray</item>
+    </style>
+
+    <style name="Theme.Overlaying" parent="Base.Theme.Overlaying" />
+</resources>
