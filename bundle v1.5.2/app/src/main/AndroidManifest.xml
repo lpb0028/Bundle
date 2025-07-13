@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
 
     <application
         android:hardwareAccelerated="true"
@@ -25,6 +27,7 @@
             </intent-filter>
         </activity>
         <service android:name=".OverlayService"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="dataSync"/>
     </application>
 </manifest>

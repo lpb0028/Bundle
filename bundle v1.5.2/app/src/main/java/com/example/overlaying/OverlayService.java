@@ -1,5 +1,9 @@
 package com.example.overlaying;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +13,8 @@ import android.view.Choreographer;
 import android.view.LayoutInflater;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+
+import androidx.core.app.NotificationCompat;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -27,10 +33,35 @@ public class OverlayService extends Service {
     private FrameLayout frame; // Frame used for displaying entities
     private WindowManager windowManager; // Manager used for hitboxes (android)
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        String action = intent.getAction();
+        if(action != null)
+            switch(action) {
+                case "CLEAR":
+                    clearEntities();
+                    break;
+                case "STOP":
+                    if(manager != null) manager.closeManagers();
+                    StopAdventure();
+                    stopForeground(STOP_FOREGROUND_REMOVE);
+                    stopSelf();
+                    break;
+            }
+        return START_NOT_STICKY;
+    }
 
     // Called to begin adventuring. This starts simulation and display of entities, hitboxes, out-of-app features, etc.
     public void StartAdventure() {
-        // Initialize a fresh WindowManager, retrieving screen size
+        NotificationChannel channel = new NotificationChannel(
+                Settings.NOTIFICATION_CHANNEL_ID,
+                "Bundle Notifications",
+                NotificationManager.IMPORTANCE_LOW);
+        getSystemService(NotificationManager.class).createNotificationChannel(channel);
+
+        startForeground(1, createNotification());
+
+        // Initialize windowManager, used for managing hitbox windows
         windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
 
         if(Settings.RUN_DEBUG_SCRIPT) {
@@ -40,7 +71,7 @@ public class OverlayService extends Service {
 
         // Inflate and initialize entity parent container
         frame = (FrameLayout) LayoutInflater.from(context).inflate(R.layout.entity_frame, null);
-        windowManager.addView(frame, Settings.TRANSPARENT_FRAME_PARAMS);
+        manager.transparentFrame.addView(frame);
 
         // Create testing entity TODO remove later
         newEntity(new Entity(context, this, 0, new Vector2(Settings.CELL_SIZE * 2, Settings.CELL_SIZE * 2), 1));
@@ -81,21 +112,14 @@ public class OverlayService extends Service {
 
     // Called to stop adventuring, removing and deleting all entities/hitboxes
     public void StopAdventure() {
+
+        clearEntities();
+
         // Removes entity-containing frame from view
         if(frame != null) {
-            windowManager.removeView(frame);
+            manager.transparentFrame.removeView(frame);
             frame = null;
         }
-
-        // Removes hitboxes from touch-interaction plane and deletes them
-        for(int i = hitboxList.size() - 1; i >= 0; i--) {
-            windowManager.removeView(hitboxList.get(i));
-            hitboxList.remove(i);
-        }
-
-        // Clear display lists, nothing should be displayed or touchable by this point
-        entityList.clear();
-        hitboxList.clear();
 
         // Reset and prepare for next adventure start
         nextEntityID = 1;
@@ -132,11 +156,36 @@ public class OverlayService extends Service {
         hitboxList.remove(i);
     }
 
+    // Called to clear all entities, on stop adventure and Clear Entity button
+    public void clearEntities() {
+        // Removes entities from frame
+        if(Settings.SEND_DEBUG_MESSAGES) System.out.println("Clearing entities");
+        for(int i = entityList.size() - 1; i >= 0; i--) {
+            entityList.get(i).destroy();
+        }
+    }
+
     // Called to decide whether or not to spawn an entity this frame
     public boolean decideSpawn() {
         if(Settings.DISABLE_NATURAL_SPAWNS)
             return false;
         return 0 == random.nextInt((int)(Settings.ENTITY_SPAWN_CHANCE + entityList.size() * Settings.CROWD_REDUCTION_FACTOR));
+    }
+
+    public Notification createNotification() {
+        PendingIntent clearScreen = PendingIntent.getService(context, 0, new Intent(context, OverlayService.class).setAction("CLEAR"), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+        PendingIntent stopAdventure = PendingIntent.getService(context, 0, new Intent(context, OverlayService.class).setAction("STOP"), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+        PendingIntent openApp = PendingIntent.getActivity(context, 0, new Intent(context, Activity.class), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+
+        return new NotificationCompat.Builder(context, Settings.NOTIFICATION_CHANNEL_ID)
+                .setSmallIcon(R.drawable.bundle)
+                .setContentTitle("Bundle")
+                .setContentText("Adventure mode active")
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .addAction(new NotificationCompat.Action(null, "Clear", clearScreen))
+                .addAction(new NotificationCompat.Action(null, "Stop Adventuring", stopAdventure))
+                .setContentIntent(openApp)
+                .build();
     }
 
     @Override

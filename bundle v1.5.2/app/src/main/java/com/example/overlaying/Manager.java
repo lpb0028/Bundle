@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 
 public class Manager {
     // This class serves as a global variable retrieval point. All scripts can acquire data held here.
@@ -36,29 +38,37 @@ public class Manager {
     public static boolean serviceRunning = false;
     public static boolean boundToService = false;
     public static boolean adventuring = false;
+
+    // Managers
     public final InventoryManager inventoryManager;
     public final ToastManager toastManager;
+
+    // Display Frame used to draw/render all non-activity-context content.
+    public final FrameLayout transparentFrame;
+
     private final Context context;
 
     // Functions
     public Manager(Context context) {
-        // toastManager must declare before inventoryManager
-        toastManager = new ToastManager(context.getApplicationContext());
+        // Add transparentFrame to WindowManager - frame must declare before sub-managers
+        WindowManager windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
+        transparentFrame = (FrameLayout) LayoutInflater.from(context).inflate(R.layout.transparent_frame, null);
+        windowManager.addView(transparentFrame, Settings.TRANSPARENT_FRAME_PARAMS);
+        windowManager.getDefaultDisplay().getMetrics(display);
+        // Instantiate Managers - toastManager must declare before inventoryManager
+        toastManager = new ToastManager(context.getApplicationContext(), this);
         inventoryManager = new InventoryManager(context, this);
-        ((WindowManager) context.getSystemService(WINDOW_SERVICE)).getDefaultDisplay().getMetrics(display);
+
         this.context = context;
     }
     public void closeManagers() {
         if(Settings.SEND_DEBUG_MESSAGES) System.out.println("Closed Managers");
         inventoryManager.writeInventoryToFile(3);
-        toastManager.Close(context);
+        toastManager.Close();
     }
     public void bindActivityToService(Context context) {
         Intent intent = new Intent(context, com.example.overlaying.OverlayService.class);
         context.startService(intent);
         context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
-    }
-    public void unbindActivityFromService(Context context) {
-        context.unbindService(serviceConnection);
     }
 }

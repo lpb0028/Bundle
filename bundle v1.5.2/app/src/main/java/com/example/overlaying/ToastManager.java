@@ -17,18 +17,18 @@ public class ToastManager {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final LinearLayout toastFrame;
 
-    public ToastManager(Context context) {
+    private Manager manager;
+
+    public ToastManager(Context context, Manager manager) {
         this.context = context;
-        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        LayoutInflater inflater = LayoutInflater.from(context);
-        toastFrame = (LinearLayout) inflater.inflate(R.layout.toast_frame, null);
-        windowManager.addView(toastFrame, Settings.TRANSPARENT_FRAME_PARAMS);
+        this.manager = manager;
+        toastFrame = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.toast_frame, null);
+        manager.transparentFrame.addView(toastFrame);
     }
 
-    public void Close(Context context) {
-        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+    public void Close() {
         if(toastFrame.getParent() != null)
-            windowManager.removeView(toastFrame);
+            manager.transparentFrame.removeView(toastFrame);
     }
 
     public int getActiveToasts() {

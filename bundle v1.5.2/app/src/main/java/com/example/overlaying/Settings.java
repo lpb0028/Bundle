@@ -6,6 +6,8 @@ import android.view.WindowManager;
 
 public class Settings {
 
+    // Notification Settings
+    public static final String NOTIFICATION_CHANNEL_ID = "bundle_channel";
     // General Settings
     public static final int CELL_SIZE = 60;
     public static final float ENTITY_GRAVITY = 15f;
@@ -62,7 +64,7 @@ public class Settings {
     //endregion
 
     // Toggleables
-    public static boolean SHOW_DEBUG_VISUALS = true;
+    public static boolean SHOW_DEBUG_VISUALS = false;
     public static boolean SEND_DEBUG_MESSAGES = true;
     public static boolean SEND_ENTITY_STATUS_MESSAGES = false;
     public static boolean DISABLE_NATURAL_SPAWNS = false;

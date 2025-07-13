@@ -207,7 +207,6 @@ public class Entity extends androidx.appcompat.widget.AppCompatImageView {
     // Used to destroy this entity
     public void destroy() {
         if(Settings.SEND_ENTITY_STATUS_MESSAGES) System.out.println("Destroyed entity " + entityID);
-        gridView = null;
         service.destroyEntity(this);
     }
 
