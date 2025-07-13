@@ -18,6 +18,7 @@ public class BuildFragment extends Fragment {
 
         FrameLayout frame = (FrameLayout) inflater.inflate(R.layout.build_fragment, container, false);
         simulation = new SimulationLayout(getContext(), activity.manager);
+//        simulation.requireGroundedEntities = true;
         frame.addView(simulation);
 
         simulation.StartAdventure();

@@ -1,7 +1,7 @@
 package com.example.overlaying;
 
-public class ItemDictionary {
-    public static Item[] dictionary = {
+public class MyDictionary {
+    public static Item[] itemDictionary = {
         new Item(1, "Stone", R.drawable.stone_item),
         new Item(1.1f, "Granite", R.drawable.granite_item),
         new Item(1.2f, "Polished Granite", R.drawable.polished_granite_item),
@@ -66,16 +66,44 @@ public class ItemDictionary {
         new Item(32f, "Dead Bush", R.drawable.dead_bush_item),
         new Item(33f, "Piston", R.drawable.piston_item)
     };
+    public static String[] blockDictionary = {
+            "unassigned",
+            "air",
+            "red_concrete",
+            "orange_concrete",
+            "yellow_concrete",
+            "green_concrete"
+    };
+    public static int[] blockIdDictionary = {
+            0,
+            R.drawable.air,
+            R.drawable.red_concrete,
+            R.drawable.orange_concrete,
+            R.drawable.yellow_concrete,
+            R.drawable.green_concrete
+    };
     public static Item searchItem(double id) {
-        for(Item item : dictionary)
+        for(Item item : itemDictionary)
             if(item.getId() == id)
                 return item;
-        return dictionary[0];
+        return itemDictionary[0];
     }
     public static Item searchItem(String itemName) {
-        for(Item item : dictionary)
+        for(Item item : itemDictionary)
             if(item.getItemName().equals(itemName))
                 return item;
-        return dictionary[0];
+        return itemDictionary[0];
+    }
+    public static String searchBlock(int id) {
+        for(int i = 0; i < blockIdDictionary.length; i++) {
+            if(blockIdDictionary[i] == id)
+                return blockDictionary[i];
+        }
+        return "Not Found (" + id + ")";
+    }
+    public static void printBlocks() {
+        for(int i = 0; i < blockIdDictionary.length; i++) {
+            System.out.println(blockIdDictionary[i] + " : " + blockDictionary[i]);
+        }
     }
 }

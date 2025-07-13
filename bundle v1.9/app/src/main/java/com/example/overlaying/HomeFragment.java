@@ -12,15 +12,15 @@ public class HomeFragment extends Fragment {
 
     //region private static final int[][] BANNER_GRIDS = {}
     private static final int[][] LEFT_BANNER_GRID = {
-            {R.drawable.oak_planks, R.drawable.oak_planks, R.drawable.oak_plank_stairs_3, R.drawable.air},
+            {R.drawable.oak_planks, R.drawable.oak_planks, R.drawable.oak_plank_stairs_3, 0},
             {R.drawable.oak_planks, R.drawable.oak_planks, R.drawable.oak_planks, R.drawable.oak_plank_stairs_3},
-            {R.drawable.cobblestone, R.drawable.cobblestone, R.drawable.oak_log, R.drawable.air},
-            {R.drawable.glass, R.drawable.oak_log_2, R.drawable.oak_log, R.drawable.air},
-            {R.drawable.cobblestone, R.drawable.cobblestone, R.drawable.oak_log, R.drawable.air},
+            {R.drawable.cobblestone, R.drawable.cobblestone, R.drawable.oak_log, 0},
+            {R.drawable.glass, R.drawable.oak_log_2, R.drawable.oak_log, 0},
+            {R.drawable.cobblestone, R.drawable.cobblestone, R.drawable.oak_log, 0},
             {R.drawable.cobblestone, R.drawable.cobblestone, R.drawable.oak_log, R.drawable.oak_plank_stairs_3}
     };
     private static final int[][] RIGHT_BANNER_GRID = {
-            {R.drawable.air, R.drawable.composter_side, R.drawable.wheat_stage5, R.drawable.wheat_stage7, R.drawable.wheat_stage0},
+            {0, R.drawable.composter_side, R.drawable.wheat_stage5, R.drawable.wheat_stage7, R.drawable.wheat_stage0},
             {R.drawable.oak_log, R.drawable.oak_log, R.drawable.oak_log, R.drawable.oak_log, R.drawable.oak_log}
     };
     //endregion
@@ -37,8 +37,8 @@ public class HomeFragment extends Fragment {
         assert activity != null;
 
         // Setup BlockGrids
-        BlockGrid.loadGrid(view, R.id.leftBannerGrid, LEFT_BANNER_GRID);
-        BlockGrid.loadGrid(view, R.id.rightBannerGrid, RIGHT_BANNER_GRID);
+        BlockGrid.loadFromResources(view.findViewById(R.id.leftBannerGrid), LEFT_BANNER_GRID);
+        BlockGrid.loadFromResources(view.findViewById(R.id.rightBannerGrid), RIGHT_BANNER_GRID);
 
         // Setup CloudView
         ((FrameLayout) view.findViewById(R.id.cloudContainer)).addView(new CloudView(getContext(), null));

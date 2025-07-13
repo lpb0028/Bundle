@@ -34,7 +34,7 @@ public class InventoryFragment extends Fragment {
         for(Vector2 v : inventory) {
             newText.append((int)v.y);
             newText.append(" ");
-            newText.append(ItemDictionary.searchItem((float)v.x));
+            newText.append(MyDictionary.searchItem((float)v.x));
             newText.append(", ");
         }
         newText.delete(newText.length() - 2, newText.length());
@@ -58,7 +58,7 @@ public class InventoryFragment extends Fragment {
             for (int i = 0; i < inventoryGrid.getChildCount(); i++) {
                 ImageView itemImage = (ImageView) ((ViewGroup) inventoryGrid.getChildAt(i)).getChildAt(0);
                 TextView itemText = (TextView) ((ViewGroup) inventoryGrid.getChildAt(i)).getChildAt(1);
-                itemImage.setImageResource(ItemDictionary.searchItem(inventory.get(i).x).getFileId());
+                itemImage.setImageResource(MyDictionary.searchItem(inventory.get(i).x).getFileId());
                 itemText.setText(String.valueOf((int) inventory.get(i).y));
             }
         }

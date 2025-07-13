@@ -20,7 +20,6 @@ public class Activity extends AppCompatActivity {
         super.onStart();
         getPermissions(this);
 
-        System.out.println(Manager.serviceRunning);
         // Either start or retrieve manager script
         if(Manager.serviceRunning) {
             manager = Manager.binder.RetreiveManager();
@@ -69,7 +68,7 @@ public class Activity extends AppCompatActivity {
                 case 5: fragmentTransaction.replace(R.id.fragment_container, new SettingsFragment());
                     break;
             }
-            manager.inventoryManager.addItemToInventory(ItemDictionary.searchItem(newMenu), 1);
+            manager.inventoryManager.addItemToInventory(MyDictionary.searchItem(newMenu), 1);
             fragmentTransaction.commit();
         }
     }

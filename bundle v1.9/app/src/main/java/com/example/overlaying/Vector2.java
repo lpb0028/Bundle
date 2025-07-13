@@ -33,9 +33,8 @@ public class Vector2 implements Serializable {
         double newY = to.y - from.y;
         return new Vector2(newX, newY);
     }
-    public Vector2 round()
-    {
-        return new Vector2(Math.round(this.x), Math.round(this.y));
+    public Vector2Int round() {
+        return new Vector2Int((int)Math.round(this.x), (int)Math.round(this.y));
     }
     public Vector2 plus(Vector2 other)
     {
@@ -70,9 +69,9 @@ public class Vector2 implements Serializable {
         return new Vector2(this.x % other.x, this.y % other.y);
     }
 
-    public Vector2 toOne()
+    public Vector2Int toOne()
     {
-        Vector2 res = new Vector2();
+        Vector2Int res = new Vector2Int();
         if(this.x > 0) res.x = 1;
         else if(this.x < 0) res.x = -1;
         else res.x = 0;
@@ -99,6 +98,6 @@ public class Vector2 implements Serializable {
 
     @Override
     public String toString() {
-        return "(" + x + ", " + y + ")";
+        return "Vector2 - (" + x + ", " + y + ")";
     }
 }

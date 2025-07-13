@@ -1,7 +1,6 @@
 package com.example.overlaying;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.Choreographer;
 import android.view.WindowManager;
@@ -12,15 +11,23 @@ import java.util.Random;
 
 public class SimulationLayout extends FrameLayout {
 
+    // Managers
     public Manager manager;
     private WindowManager windowManager;
 
     // Containers for entity references and hitbox references
-    private static final ArrayList<Entity> entityList = new ArrayList<>();
-    private static final ArrayList<TouchHitBox> hitboxList = new ArrayList<>();
+    private final ArrayList<Entity> entityList = new ArrayList<>();
+    private final ArrayList<TouchHitBox> hitboxList = new ArrayList<>();
+    public BlockGrid blockGrid;
 
-    public static int nextEntityID = 1; // ID holder for newly created entities
+    public int nextEntityID = 1; // ID holder for newly created entities
     private final Random random = new Random();
+
+    // Settings
+    public boolean requireGroundedEntities = false;
+    public boolean spawnEntities = false;
+    public boolean spawnBlocks = false;
+    public boolean spawnStructures = false;
 
     public SimulationLayout(Context context) {
         super(context);
@@ -31,6 +38,16 @@ public class SimulationLayout extends FrameLayout {
     public SimulationLayout(Context context, Manager manager) {
         super(context);
         this.manager = manager;
+    }
+    public void establishSize() {
+        blockGrid = new BlockGrid(this, new int[(int)Math.ceil((float)getHeight() / Settings.CELL_SIZE)][(int)Math.ceil((float)getWidth() / Settings.CELL_SIZE)]);
+
+        blockGrid.fill(new Vector2Int(0, 0), new Vector2Int(blockGrid.getSize().x, 0), R.drawable.red_concrete);
+        blockGrid.fill(blockGrid.getSize(), new Vector2Int(blockGrid.getSize().x, 0), R.drawable.orange_concrete);
+        blockGrid.fill(blockGrid.getSize(), new Vector2Int(0, blockGrid.getSize().y), R.drawable.yellow_concrete);
+        blockGrid.fill(new Vector2Int(0, blockGrid.getSize().y), new Vector2Int(0, 0), R.drawable.green_concrete);
+
+        newEntity(new Entity(getContext(), this, -1, new Vector2(getWidth() / 2, getHeight() / 2), 1));
     }
 
     // Called to begin adventuring. This starts simulation and display of entities, hitboxes, out-of-app features, etc.
@@ -63,7 +80,7 @@ public class SimulationLayout extends FrameLayout {
                         TouchHitBox box = hitboxList.get(i);
                         if (box != null) {
                             if (box.updateCounter >= Settings.HITBOX_UPDATE_FRAMES) {
-                                box.setCenter(entity.getCenter());
+                                box.setCenter(entity.getCenterPos());
                             }
                             // Continue hitbox update timer
                             box.updateCounter = box.updateCounter % 15 + 1;
@@ -87,7 +104,7 @@ public class SimulationLayout extends FrameLayout {
     }
 
     // Called to create a new entity when adventuring
-    public void newEntity(Entity entity) {
+    public Entity newEntity(Entity entity) {
         // Save references to entity and hitbox
         entityList.add(entity);
         hitboxList.add(new TouchHitBox(getContext(), null, Settings.CELL_SIZE * 3, entity));
@@ -101,6 +118,7 @@ public class SimulationLayout extends FrameLayout {
 
         // Increment for next entity spawn
         nextEntityID++;
+        return entity;
     }
 
     // Called to destroy a current entity when either killed or despawned
@@ -127,8 +145,17 @@ public class SimulationLayout extends FrameLayout {
 
     // Called to decide whether or not to spawn an entity this frame
     public boolean decideSpawn() {
-        if(Settings.DISABLE_NATURAL_SPAWNS)
+        if (!spawnEntities)
             return false;
         return 0 == random.nextInt((Settings.ENTITY_SPAWN_CHANCE + entityList.size() * Settings.CROWD_REDUCTION_FACTOR));
+    }
+
+    @Override
+    public void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
+        if(blockGrid == null) {
+            establishSize();
+            invalidate();
+        }
     }
 }

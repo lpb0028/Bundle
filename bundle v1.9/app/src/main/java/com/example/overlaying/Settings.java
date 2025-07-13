@@ -10,7 +10,7 @@ public class Settings {
     public static final String NOTIFICATION_CHANNEL_ID = "bundle_channel";
     // General Settings
     public static final int CELL_SIZE = 60;
-    public static final float ENTITY_GRAVITY = 15f;
+    public static final float ENTITY_GRAVITY = 800f;
     public static final float ENTITY_KNOCKBACK_FORCE = 200;
     public static final float ENTITY_JUMP_FORCE = 365;
     public static final float HIT_INVULNERABILITY_DURATION = .4f;
@@ -66,10 +66,11 @@ public class Settings {
     // Toggleables
     public static boolean SHOW_DEBUG_VISUALS = false;
     public static boolean SEND_DEBUG_MESSAGES = true;
-    public static boolean SEND_ENTITY_STATUS_MESSAGES = false;
-    public static boolean DISABLE_NATURAL_SPAWNS = false;
+    public static boolean SEND_ENTITY_STATUS_MESSAGES = true;
     public static boolean RUN_DEBUG_SCRIPT = false;
     public static boolean DRAW_CLOUDS = false;
+    public static boolean SHOW_DEBUG_BLOCKS = false;
+    public static final int[] debugRenderBlocks = new int[] {R.drawable.red_concrete, R.drawable.orange_concrete, R.drawable.yellow_concrete, R.drawable.green_concrete, R.drawable.blue_concrete, R.drawable.magenta_concrete, R.drawable.purple_concrete};
 
     static {
         TRANSPARENT_FRAME_PARAMS.alpha = 0.8f;
