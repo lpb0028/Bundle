@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -14,6 +15,7 @@ public class TouchHitBox extends View {
     public int updateCounter = 0; // Counter used to update every so often
     Paint paint = new Paint(); // Used for debug drawing
     private WindowManager windowManager; // Android window manager used for updating position
+    private DisplayMetrics display = new DisplayMetrics();
 
     public TouchHitBox(Context context, AttributeSet attrs)
     {
@@ -23,6 +25,7 @@ public class TouchHitBox extends View {
         this(context, attrs);
         this.entity = entity;
         windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        windowManager.getDefaultDisplay().getMetrics(display);
         // Set minimum size so as not to be overwritten
         this.setMinimumHeight(size);
         this.setMinimumWidth(size);
@@ -37,8 +40,8 @@ public class TouchHitBox extends View {
         if(this.getWindowToken() == null) return;
         WindowManager.LayoutParams params = (WindowManager.LayoutParams) getLayoutParams();
 
-        params.x = (int) newX - Manager.display.widthPixels / 2;
-        params.y = (int) newY - Manager.display.heightPixels / 2;
+        params.x = newX - display.widthPixels / 2;
+        params.y = newY - display.heightPixels / 2;
 
         windowManager.updateViewLayout(this, params);
     }

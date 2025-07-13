@@ -12,13 +12,15 @@ import android.view.View;
 
 public class Activity extends AppCompatActivity {
     public Manager manager;
-    private int activeMenu = -1;
+    private int selectedTab = -1;
 
     // Called on program start
     @Override
     public void onStart() {
         super.onStart();
         getPermissions(this);
+
+        System.out.println(Manager.serviceRunning);
         // Either start or retrieve manager script
         if(Manager.serviceRunning) {
             manager = Manager.binder.RetreiveManager();
@@ -26,33 +28,32 @@ public class Activity extends AppCompatActivity {
         }
         else {
             manager = new Manager(this);
-            manager.bindActivityToService(this);
+            manager.bindToService(this);
         }
 
         setContentView(R.layout.main_activity); // Initialize menu container
-        switchMenu(1); // Load first menu
-        loadMenus(); // Add click listeners to menu buttons
+        switchTab(1); // Load first menu
+        loadTabListeners(); // Add click listeners to menu tabs
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if(manager != null)
-            manager.close();
     }
 
     // Called to stop activity
-    public void close(boolean stopProgram) {
+    public void Close(boolean stopProgram) {
+        System.out.println("Closed Activity");
         if(stopProgram)
-            manager.close();
+            manager.Close();
         finishAndRemoveTask();
     }
     // Called to switch activity menu
-    public void switchMenu(int newMenu) {
-        if(newMenu != activeMenu) {
-            System.out.println("Switching menu from " + activeMenu + " to " + newMenu);
-            updateNavigation(activeMenu, newMenu);
-            activeMenu = newMenu;
+    public void switchTab(int newMenu) {
+        if(newMenu != selectedTab) {
+            System.out.println("Switching menu from " + selectedTab + " to " + newMenu);
+            updateTabHighlight(selectedTab, newMenu);
+            selectedTab = newMenu;
 
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -73,7 +74,7 @@ public class Activity extends AppCompatActivity {
         }
     }
     // Called to update navigation layout
-    public void updateNavigation(int oldMenu, int newMenu) {
+    public void updateTabHighlight(int oldMenu, int newMenu) {
         View button;
         ConstraintLayout.LayoutParams params;
 
@@ -112,12 +113,12 @@ public class Activity extends AppCompatActivity {
         button.setLayoutParams(params);
     }
     // Called to set initial button click listeners
-    private void loadMenus() {
-        findViewById(R.id.menu_button1).setOnClickListener(v -> switchMenu(1));
-        findViewById(R.id.menu_button2).setOnClickListener(v -> switchMenu(2));
-        findViewById(R.id.menu_button3).setOnClickListener(v -> switchMenu(3));
-        findViewById(R.id.menu_button4).setOnClickListener(v -> switchMenu(4));
-        findViewById(R.id.menu_button5).setOnClickListener(v -> switchMenu(5));
+    private void loadTabListeners() {
+        findViewById(R.id.menu_button1).setOnClickListener(v -> switchTab(1));
+        findViewById(R.id.menu_button2).setOnClickListener(v -> switchTab(2));
+        findViewById(R.id.menu_button3).setOnClickListener(v -> switchTab(3));
+        findViewById(R.id.menu_button4).setOnClickListener(v -> switchTab(4));
+        findViewById(R.id.menu_button5).setOnClickListener(v -> switchTab(5));
     }
 
     // Obtains permissions if necessary

@@ -105,7 +105,7 @@ public class InventoryManager {
                 if(v.y >= amount)
                     v.y -= amount;
                 else {
-                    amount -= v.y;
+                    amount -= (int) v.y;
                     v.y = 0;
                 }
                 if(amount <= 0) break;
@@ -116,5 +116,8 @@ public class InventoryManager {
             if(inventory.get(i).y <= 0)
                 inventory.remove(i);
         }
+    }
+    public void Close() {
+        writeInventoryToFile();
     }
 }

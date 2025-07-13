@@ -18,7 +18,7 @@ public class Entity extends androidx.appcompat.widget.AppCompatImageView {
     private double invulnerabilityTimer = 0;
 
     // References
-    private OverlayService service;
+    private SimulationLayout simulation;
     private final Random random = new Random();
     public EntityGridView gridView;
 
@@ -47,24 +47,24 @@ public class Entity extends androidx.appcompat.widget.AppCompatImageView {
     public Entity(Context context) {
         super(context);
     }
-    public Entity(Context context, OverlayService service) {
-        this(context, service, -1);
+    public Entity(Context context, SimulationLayout simulation) {
+        this(context, simulation, -1);
     }
-    public Entity(Context context, OverlayService service, int entityID) {
-        this(context, service, entityID, null, 2);
+    public Entity(Context context, SimulationLayout simulation, int entityID) {
+        this(context, simulation, entityID, null, 2);
     }
-    public Entity(Context context, OverlayService service, int entityID, Vector2 _position, double moveSpeed) {
+    public Entity(Context context, SimulationLayout simulation, int entityID, Vector2 _position, double moveSpeed) {
         super(context, null);
         // Testing
         // manualPoints = new ArrayList<>(Arrays.asList(new Vector2(entityID * Settings.CELL_SIZE, 600), new Vector2(entityID * Settings.CELL_SIZE, 180), new Vector2(entityID * Settings.CELL_SIZE, 600), new Vector2(entityID * Settings.CELL_SIZE, 300), new Vector2(entityID * Settings.CELL_SIZE, 600), new Vector2(entityID * Settings.CELL_SIZE, 180), new Vector2(entityID * Settings.CELL_SIZE, 600)));
 
         // Assigning variables
-        this.service = service;
+        this.simulation = simulation;
         this.moveSpeed = moveSpeed;
         this.entityID = entityID;
         prevTime = SystemClock.elapsedRealtime() * .001;
         gridView = new EntityGridView(context);
-        gridSize = new Vector2((double) Manager.display.widthPixels / Settings.CELL_SIZE,(double) Manager.display.heightPixels / Settings.CELL_SIZE).round();
+        gridSize = new Vector2((double) simulation.getWidth() / Settings.CELL_SIZE,(double) simulation.getHeight() / Settings.CELL_SIZE).round();
 
         // Registering min size so as not to be overwritten
         this.setMinimumWidth((int)(Settings.CELL_SIZE * .7f));
@@ -139,8 +139,8 @@ public class Entity extends androidx.appcompat.widget.AppCompatImageView {
             if(Settings.SEND_ENTITY_STATUS_MESSAGES) System.out.println("ID: " + entityID + " Continued exit on state timer end");
         }
         // If previously MOVE, either IDLE or MOVE again depending on whether on-screen or not
-        else if(moveState == MoveState.MOVE && onScreen()) {
-            if(onScreen())
+        else if(moveState == MoveState.MOVE && inBounds()) {
+            if(inBounds())
                 setMoveState(MoveState.IDLE);
             else
                 setMoveState(MoveState.MOVE);
@@ -206,7 +206,7 @@ public class Entity extends androidx.appcompat.widget.AppCompatImageView {
     // Used to destroy this entity
     public void destroy() {
         if(Settings.SEND_ENTITY_STATUS_MESSAGES) System.out.println("Destroyed entity " + entityID);
-        service.destroyEntity(this);
+        simulation.destroyEntity(this);
     }
 
     // Touch events registered from associated hitbox
@@ -226,7 +226,7 @@ public class Entity extends androidx.appcompat.widget.AppCompatImageView {
             paint.setAlpha(alpha);
 
             // Add item to inventory (testing)
-            service.manager.inventoryManager.addItemToInventory(ItemDictionary.searchItem(entityID + 5), 1);
+            simulation.manager.inventoryManager.addItemToInventory(ItemDictionary.searchItem(entityID + 5), 1);
 
             // Begin hurt knockback
             isInvulnerable = true;
@@ -241,7 +241,7 @@ public class Entity extends androidx.appcompat.widget.AppCompatImageView {
         return true;
     }
     // Returns true if entity is currently on-screen
-    public boolean onScreen() {
+    public boolean inBounds() {
         return currentPosition.y <= gridSize.y * Settings.CELL_SIZE && currentPosition.x <= gridSize.x * Settings.CELL_SIZE;
     }
 

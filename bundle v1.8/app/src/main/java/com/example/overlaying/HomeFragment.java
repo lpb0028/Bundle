@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 
 public class HomeFragment extends Fragment {
 
+    //region private static final int[][] BANNER_GRIDS = {}
     private static final int[][] LEFT_BANNER_GRID = {
             {R.drawable.oak_planks, R.drawable.oak_planks, R.drawable.oak_plank_stairs_3, R.drawable.air},
             {R.drawable.oak_planks, R.drawable.oak_planks, R.drawable.oak_planks, R.drawable.oak_plank_stairs_3},
@@ -22,6 +23,8 @@ public class HomeFragment extends Fragment {
             {R.drawable.air, R.drawable.composter_side, R.drawable.wheat_stage5, R.drawable.wheat_stage7, R.drawable.wheat_stage0},
             {R.drawable.oak_log, R.drawable.oak_log, R.drawable.oak_log, R.drawable.oak_log, R.drawable.oak_log}
     };
+    //endregion
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.home_fragment, container, false);
@@ -29,33 +32,36 @@ public class HomeFragment extends Fragment {
 
         return view;
     }
-
     private void loadViews(View view) {
         Activity activity = (Activity) getActivity();
         assert activity != null;
 
+        // Setup BlockGrids
         BlockGrid.loadGrid(view, R.id.leftBannerGrid, LEFT_BANNER_GRID);
         BlockGrid.loadGrid(view, R.id.rightBannerGrid, RIGHT_BANNER_GRID);
 
+        // Setup CloudView
         ((FrameLayout) view.findViewById(R.id.cloudContainer)).addView(new CloudView(getContext(), null));
-        // Start service and end activity
-        view.findViewById(R.id.homeButton1).setOnClickListener(v -> {
-            if (Manager.boundToService) {
-                activity.close(false);
-                System.out.println("Starting adventure - " + Manager.boundToService);
-                Manager.binder.StartAdventure();
-            }
-            else
-                activity.manager.bindActivityToService(activity);
-        });
+
+        // Start Button
+        view.findViewById(R.id.homeButton1).setOnClickListener(v -> onStartButtonClick(activity));
 
         // End service, end activity; Exit Application
-        view.findViewById(R.id.homeButton2).setOnClickListener(v -> {
-            if (Manager.boundToService) {
-                Manager.binder.StopAdventure();
-                Manager.binder.StopService();
-            }
-            activity.close(true);
-        });
+        view.findViewById(R.id.homeButton2).setOnClickListener(v -> onExitButtonClick(activity));
+    }
+    private void onStartButtonClick(Activity activity) {
+        if (Manager.boundToService) {
+            Manager.binder.StartAdventure();
+            activity.Close(false);
+        }
+        else
+            activity.manager.bindToService(activity);
+    }
+    private void onExitButtonClick(Activity activity) {
+        if (Manager.boundToService) {
+            Manager.binder.StopAdventure();
+            Manager.binder.StopService();
+        }
+        activity.Close(true);
     }
 }
