@@ -1,7 +1,6 @@
 package com.example.overlaying;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -14,14 +13,13 @@ import java.util.Random;
 public class Entity extends androidx.appcompat.widget.AppCompatImageView {
 
     public int id;
-    private Context context;
+    private OverlayService service;
 
     // Positioning
     private final Vector2 position = new Vector2();
     private final Vector2 targetPosition = new Vector2();
     public GridView gridView;
     public Vector2 gridSize;
-    private static int cellSize;
     private double stateDuration = 0;
     private double stateStartTime;
     private final Random random = new Random();
@@ -36,30 +34,29 @@ public class Entity extends androidx.appcompat.widget.AppCompatImageView {
 
     // Misc.
     public double moveSpeed;
-    public double hp;
     public int groundState;
     Paint paint = new Paint();
 
-    public Entity(Context context) {
-        this(context, -1);
+    public Entity(Context context) { super(context); }
+    public Entity(Context context, OverlayService service) {
+        this(context, service, -1);
     }
-    public Entity(Context context, int id) {
-        this(context, id, null, 60, 2);
+    public Entity(Context context, OverlayService service, int id) {
+        this(context, service, id, null, 2);
     }
-    public Entity(Context context, int id, Vector2 _position, int _cellSize, double moveSpeed) {
+    public Entity(Context context, OverlayService service, int id, Vector2 _position, double moveSpeed) {
         super(context, null);
-        this.context = context;
+        this.service = service;
         this.moveSpeed = moveSpeed;
         this.id = id;
         prevTime = SystemClock.elapsedRealtime() * .001;
-        cellSize = _cellSize;
 
-        this.setMinimumWidth((int)(_cellSize * .7f));
-        this.setMinimumHeight((int)(_cellSize * 1.8f));
+        this.setMinimumWidth((int)(service.cellSize * .7f));
+        this.setMinimumHeight((int)(service.cellSize * 1.8f));
 
         System.out.println("Created entity " + id);
         gridView = new GridView(context);
-        gridSize = new Vector2((double) ((MainActivity) context).display.widthPixels / cellSize,(double)((MainActivity) context).display.heightPixels / cellSize).round();
+        gridSize = new Vector2((double) service.display.widthPixels / service.cellSize,(double)service.display.heightPixels / service.cellSize).round();
         if(_position == null)
             nextState(false, true);
         else
@@ -76,8 +73,8 @@ public class Entity extends androidx.appcompat.widget.AppCompatImageView {
     public Vector2 getPosition() { return position; }
     public void setPosition(Vector2 _position) {
         position.set(_position);
-        this.setX((int)(position.x - cellSize * .35));
-        this.setY((int)(position.y - cellSize * 1.8));
+        this.setX((int)(position.x - service.cellSize * .35));
+        this.setY((int)(position.y - service.cellSize * 1.8));
         gridView.setPosition(_position);
     }
     public enum MoveState
@@ -93,45 +90,45 @@ public class Entity extends androidx.appcompat.widget.AppCompatImageView {
     }
     public void nextState(boolean canExit, boolean newPosition)
     {
-        if(moveState == MoveState.MOVE && (position.y <= gridSize.y * cellSize && position.x <= gridSize.x * cellSize))
+        if(moveState == MoveState.MOVE && (position.y <= gridSize.y * service.cellSize && position.x <= gridSize.x * service.cellSize))
         {
             moveState = MoveState.IDLE;
             System.out.println("ID: " + id + " Changed state to " + moveState);
         }
-        else if(moveSpeed > 0 && (moveState == MoveState.IDLE || (position.y >= gridSize.y * cellSize || position.x >= gridSize.x * cellSize)))
+        else if(moveSpeed > 0 && (moveState == MoveState.IDLE || (position.y >= gridSize.y * service.cellSize || position.x >= gridSize.x * service.cellSize)))
         {
             stateDuration = ((int)(((random.nextDouble() * 7) + 3) * 10)) * .1;
 
             if(manualPoints.size() > 0)
             {
                 moveState = MoveState.MOVE;
-                targetPosition.set(manualPoints.get(0).plus(new Vector2(cellSize * .5f, 0)));
+                targetPosition.set(manualPoints.get(0).plus(new Vector2(service.cellSize * .5f, 0)));
                 manualPoints.remove(0);
                 System.out.println("ID: " + id + " FORCED state to " + moveState);
             }
             else if((int)(random.nextDouble() * 11) + 1 <= 10 || !canExit) {
                 moveState = MoveState.MOVE;
-                int newX = (int)(random.nextDouble() * (gridSize.x - 1)) * cellSize;
-                int newY = (int)(position.y + (int)(((random.nextDouble() - .5) * ((gridSize.y - 2) * .5)) + 2) * cellSize);
-                if(newY < cellSize * 2) newY = cellSize * 2;
-                if(newY > gridSize.y * cellSize) newY = (int)(gridSize.y * cellSize);
-                targetPosition.set(newX + cellSize * .5f, newY);
+                int newX = (int)(random.nextDouble() * (gridSize.x - 1)) * service.cellSize;
+                int newY = (int)(position.y + (int)(((random.nextDouble() - .5) * ((gridSize.y - 2) * .5)) + 2) * service.cellSize);
+                if(newY < service.cellSize * 2) newY = service.cellSize * 2;
+                if(newY > gridSize.y * service.cellSize) newY = (int)(gridSize.y * service.cellSize);
+                targetPosition.set(newX + service.cellSize * .5f, newY);
                 System.out.println("ID: " + id + " Changed state to " + moveState);
             }
             else
             {
                 moveState = MoveState.EXIT;
-                int newX = (random.nextBoolean()? - (int) gridView.radius - cellSize : (int)gridSize.x * cellSize + (int) gridView.radius + cellSize);
-                int newY = (int)(position.y + (int)(((random.nextDouble() - .5) * ((gridSize.y - 2) * .5))) * cellSize);
-                targetPosition.set(newX + cellSize * .5f, newY);
+                int newX = (random.nextBoolean()? - (int) gridView.radius - service.cellSize : (int)gridSize.x * service.cellSize + (int) gridView.radius + service.cellSize);
+                int newY = (int)(position.y + (int)(((random.nextDouble() - .5) * ((gridSize.y - 2) * .5))) * service.cellSize);
+                targetPosition.set(newX + service.cellSize * .5f, newY);
                 System.out.println("ID: " + id + " Changed state to " + moveState);
             }
         }
         if(newPosition)
         {
-            int newX = (int)(random.nextDouble() * (gridSize.x - 1)) * cellSize;
-            int newY = (int)(random.nextDouble() * (gridSize.y - 2) + 2) * cellSize;
-            setPosition(new Vector2(newX + cellSize * .5f, newY));
+            int newX = (int)(random.nextDouble() * (gridSize.x - 1)) * service.cellSize;
+            int newY = (int)(random.nextDouble() * (gridSize.y - 2) + 2) * service.cellSize;
+            setPosition(new Vector2(newX + service.cellSize * .5f, newY));
             System.out.println("ID: " + id + " Also set new random position to: " + position);
         }
         stateStartTime = SystemClock.elapsedRealtime() * .001;
@@ -140,7 +137,7 @@ public class Entity extends androidx.appcompat.widget.AppCompatImageView {
     {
         System.out.println("Destroyed entity " + id);
         gridView = null;
-        ((MainActivity) context).destroyEntity(this);
+        service.destroyEntity(this);
     }
     @Override
     public boolean onTouchEvent(MotionEvent event)
@@ -159,7 +156,7 @@ public class Entity extends androidx.appcompat.widget.AppCompatImageView {
         // Animation
         double elapsedTime = SystemClock.elapsedRealtime() * .001 - prevTime;
         prevTime = SystemClock.elapsedRealtime() * .001;
-        if(position.y % cellSize == 0)
+        if(position.y % service.cellSize == 0)
         {
             groundState = 0;
             animTimer = elapsedTime;
@@ -180,47 +177,40 @@ public class Entity extends androidx.appcompat.widget.AppCompatImageView {
                 if(dist > 0 && dist < moveSpeed) {
                     movement.x = dist * movement.toOne().x;
                 }
-                double distanceDown = Vector2.distance(position.plus(new Vector2(0, cellSize)), targetPosition);
-                double distanceUp = Vector2.distance(position.minus(new Vector2(0, cellSize)), targetPosition);
+                double distanceDown = Vector2.distance(position.plus(new Vector2(0, service.cellSize)), targetPosition);
+                double distanceUp = Vector2.distance(position.minus(new Vector2(0, service.cellSize)), targetPosition);
                 double distanceOver = Vector2.distance(position.plus(new Vector2(movement.x * 12, 0)), targetPosition);
 
-                if (distanceDown < distanceOver && moveSpeed > 0) {
-                    // Fall
+                if (distanceDown < distanceOver && moveSpeed > 0) { // Fall
                     groundState = 1;
-                } else if (distanceUp < distanceOver && moveSpeed > 0) {
-                    // Jump
+                } else if (distanceUp < distanceOver && moveSpeed > 0) { // Jump
                     groundState = -1;
                 }
                 if (Vector2.distance(position, targetPosition) == 0) {
                     // Target reached, grounded; progress to next state
-                    if(moveState == MoveState.EXIT)
-                    {
+                    if(moveState == MoveState.EXIT) {
                         this.destroy();
                         return;
                     }
                     nextState(false);
                 }
             }
-            if (groundState == -1) // Jumping up
-            {
-                // increment animTimer, evaluate animTimer / animDuration, rescale to cellSize and determine movement
+            if (groundState == -1) { // Jumping up
+                // increment animTimer, evaluate animTimer / animDuration, rescale to service.cellSize and determine movement
                 if(animTimer >= animDuration) {
-                    movement.y = -(cellSize + animPosition);
-                }
-                else
-                {
-                    float eval = -(float)AnimationCurve.Evaluate(AnimationCurve.AnimForm.CUSTOM, animTimer / animDuration) * cellSize;
+                    movement.y = -(service.cellSize + animPosition);
+                } else {
+                    float eval = -(float)AnimationCurve.Evaluate(AnimationCurve.AnimForm.CUSTOM, animTimer / animDuration) * service.cellSize;
                     movement.y = eval - animPosition;
                 }
                 animTimer += elapsedTime;
 
-            } if (groundState == 1) // Falling down
-            {
-                // increment animTimer, evaluate animTimer / animDuration, rescale to cellSize and determine movement
+            } if (groundState == 1) { // Falling down
+                // increment animTimer, evaluate animTimer / animDuration, rescale to service.cellSize and determine movement
                 if(animTimer >= animDuration)
-                    movement.y = Math.max(cellSize, position.y % cellSize) - Math.min(cellSize, position.y % cellSize);
+                    movement.y = Math.max(service.cellSize, position.y % service.cellSize) - Math.min(service.cellSize, position.y % service.cellSize);
                 else
-                    movement.y = (float)AnimationCurve.Evaluate(AnimationCurve.AnimForm.CUBE, animTimer / animDuration) * cellSize - position.y % cellSize;
+                    movement.y = (float)AnimationCurve.Evaluate(AnimationCurve.AnimForm.CUBE, animTimer / animDuration) * service.cellSize - position.y % service.cellSize;
                 animTimer += elapsedTime;
             }
             if(!movement.equals(new Vector2()))
@@ -234,8 +224,8 @@ public class Entity extends androidx.appcompat.widget.AppCompatImageView {
     @Override
     public void onDraw(Canvas canvas)
     {
-        canvas.drawRect(0f, 0f, cellSize * .7f, cellSize * 1.8f, paint);
-        //canvas.drawCircle(cellSize * .35f, cellSize * 1.8f, 10, paint);
+        canvas.drawRect(0f, 0f, service.cellSize * .7f, service.cellSize * 1.8f, paint);
+        //canvas.drawCircle(service.cellSize * .35f, service.cellSize * 1.8f, 10, paint);
     }
 }
 

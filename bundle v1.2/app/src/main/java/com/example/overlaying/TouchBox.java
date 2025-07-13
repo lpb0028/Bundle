@@ -1,7 +1,6 @@
 package com.example.overlaying;
 
 import android.content.Context;
-import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -31,16 +30,14 @@ public class TouchBox extends View {
         paint.setAlpha(80);
     }
 
-    public Vector2 setCenter(int newX, int newY)
+    public void setCenter(int newX, int newY)
     {
-        if(this.getWindowToken() == null) return null;
+        if(this.getWindowToken() == null) return;
         params = (WindowManager.LayoutParams) getLayoutParams();
         params.x = newX - (getWidth() / 2);
         params.y = newY - (getWidth() / 2);
 
-
         windowManager.updateViewLayout(this, params);
-        return new Vector2(params.x, params.y);
     }
 
 
