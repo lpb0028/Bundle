@@ -229,7 +229,7 @@ WindowManager Window
 ```
 
 ## Bundle 1.9:
-> Created 4/1/25 - IN PROGRESS
+> Created 4/1/25
 - GOALS:
   - Add features to SimulationLayout:
     - Block Spawns
@@ -252,4 +252,35 @@ WindowManager Window
   - Added EstablishSize function to SimulationLayout - called on first Layout call so that BlockGrid doesn't initialize when size is (0,0).
   - Tested block placement functions, demo'd structure placement with FillAsResources.
 - PROBLEMS:
+  - BlockGrid loading is quite slow, either optimize to load faster or prevent entity movement until loaded.
+  - Collisions are really finicky
 - NEXT STEPS:
+  - Entity pathfinding needs to be overhauled with the introduction of blocks restricting movement.
+  - Improve collisions
+  - Improve Vector management
+  - Improve BlockGrid loadtime
+
+## Bundle 1.10:
+> Created 8/17/25
+- GOALS:
+  - Improve Vector management
+  - Improve collisions
+  - Improve BlockGrid loadtime
+- CHANGES:
+  - Better conversion between vectors (double and int)
+  - Renamed app files and cleaned up naming
+  - Simplified code in most functions in BlockGrid, added enum RayCastDir for better readability
+  - Simplified code in most functions in Vector2 and Vector2Int
+  - Cleaned and optimized code in Activity, EntityGridView
+  - Added Flag class as a boolean wrapper to pass
+  - SimulationLayout now waits for associated BlockGrid to finish loading before it starts simulating
+  - Implemented Settings.DRAW_CLOUDS toggle to disable clouds in home menu
+- PROBLEMS:
+  - spawnBlocks and spawnStructures toggles in SimulationLayout not yet implemented
+  - With the introduction of blocks and new collisions, entity pathfinding needs to be overhauled
+  - Inventory notifications are annoyingly large and ugly
+- NEXT STEPS:
+  - New pathfinding for entities, different size entities
+  - Test/Improve collisions
+  - Fix inventory notifications
+  - Implement basic settings tab
